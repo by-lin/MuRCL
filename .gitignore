@@ -1,1 +1,8 @@
-__pycache__
+# Python bytecode cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+**/*.py[cod]
+**/*.cpython-310.pyc
+*$py.class
+.pytest_cache/
