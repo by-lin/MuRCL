@@ -85,7 +85,7 @@ def extract_features(args, encoder, save_dir):
                 ).convert('RGB').resize((patch_size, patch_size))
                 feat = extract(args, img, encoder)
                 features.append(feat)
-                cds.append(np.array([c['row'], c['col']], dtype=np.int))
+                cds.append(np.array([c['row'], c['col']], dtype=int))
 
                 coords_bar.set_description(f"{i + 1:3}/{len(coord_list):3} | filename: {filename}")
                 coords_bar.update()

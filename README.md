@@ -89,7 +89,7 @@ dependencies:
 3. Feature extraction
 
    ```shell
-   python extract_features.py --path_dir /dir/to/patch --image_encoder resnet18 --device 0
+   python extract_features.py --patch_dir /dir/to/patch --image_encoder resnet18 --device 0
    ```
 
 4. Clustering patch features
