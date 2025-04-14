@@ -95,9 +95,18 @@ def run(args):
 
     coord_dir = save_dir / 'coord'
     coord_dir.mkdir(parents=True, exist_ok=True)
+    
     overview_dir = save_dir / 'overview' if args.overview else None
+    if overview_dir:
+        overview_dir.mkdir(parents=True, exist_ok=True)
+    
     mask_dir = save_dir / 'mask' if args.save_mask else None
+    if mask_dir:
+        mask_dir.mkdir(parents=True, exist_ok=True)
+    
     patch_dir = save_dir / 'patch' if args.save_patch else None
+    if patch_dir:
+        patch_dir.mkdir(parents=True, exist_ok=True)
 
     slide_filepath_list = sorted(list(Path(args.slide_dir).rglob(f'*{args.wsi_format}')))
     logger.info(f"Found {len(slide_filepath_list)} slides")

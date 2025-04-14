@@ -10,25 +10,38 @@ import torch
 from torch import nn
 import torchvision.transforms as torch_trans
 from torchvision import models
+from torchvision.models import (
+    VGG16_Weights,
+    ResNet18_Weights,
+    ResNet50_Weights
+)
+import torch.nn as nn
 
 
 def create_encoder(args):
     print(f"Info: Creating extractor {args.image_encoder}")
+
     if args.image_encoder == 'vgg16':
-        encoder = models.vgg16(pretrained=True).to(args.device)
+        encoder = models.vgg16(weights=VGG16_Weights.DEFAULT).to(args.device)
+        # Remove last 3 layers of the classifier
         encoder.classifier = nn.Sequential(*list(encoder.classifier.children())[:-3])
+
     elif args.image_encoder == 'resnet50':
-        encoder = models.resnet50(pretrained=True).to(args.device)
-        layers = list(encoder.children())[:-1]
+        encoder = models.resnet50(weights=ResNet50_Weights.DEFAULT).to(args.device)
+        # Remove FC layer, flatten output
+        layers = list(encoder.children())[:-1]  # Exclude final FC
         layers.append(nn.Flatten(1))
         encoder = nn.Sequential(*layers)
+
     elif args.image_encoder == 'resnet18':
-        encoder = models.resnet18(pretrained=True).to(args.device)
+        encoder = models.resnet18(weights=ResNet18_Weights.DEFAULT).to(args.device)
         layers = list(encoder.children())[:-1]
         layers.append(nn.Flatten(1))
         encoder = nn.Sequential(*layers)
+
     else:
-        raise ValueError(f"image_encoder's name error!")
+        raise ValueError(f"image_encoder's name error: {args.image_encoder}")
+
     print(f"{args.image_encoder}:\n{encoder}")
     return encoder
 
