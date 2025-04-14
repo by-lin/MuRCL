@@ -41,6 +41,14 @@ def tiling(slide_filepath, magnification, patch_size, scale_factor=32, tissue_th
     patch_size_level0 = int(patch_size * (level0_magnification / magnification))
     logger.info(f"Patch size level0: {patch_size_level0}")
 
+    # RESTORED: Generate overview thumbnail if requested
+    thumbnail = None
+    if overview_dir is not None:
+        level = overview_level if overview_level >= 0 else min(2, slide.level_count - 1)
+        logger.info(f"Generating overview at level {level}")
+        thumbnail = slide.get_thumbnail(slide.level_dimensions[level]).convert('RGB')
+        thumbnail = cv2.cvtColor(np.asarray(thumbnail), cv2.COLOR_RGB2BGR)
+
     # Generate mask
     mask_filepath = str(mask_dir / f'{filename}.png') if mask_dir else None
     if method == 'adaptive':
@@ -51,6 +59,12 @@ def tiling(slide_filepath, magnification, patch_size, scale_factor=32, tissue_th
         mask, color_bg = RGB_filter(slide, mask_downsample=scale_factor, mask_filepath=mask_filepath)
     else:
         raise ValueError(f"Invalid filter method: {method}")
+
+    # Create patch directory if saving patches
+    if patch_dir is not None:
+        slide_patch_dir = patch_dir / filename
+        slide_patch_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created patch directory: {slide_patch_dir}")
 
     mask_w, mask_h = mask.size
     mask = cv2.cvtColor(np.asarray(mask), cv2.COLOR_GRAY2BGR)
@@ -64,12 +78,29 @@ def tiling(slide_filepath, magnification, patch_size, scale_factor=32, tissue_th
     for row in range(num_step_y):
         for col in range(num_step_x):
             points_mask = get_three_points(col, row, mask_patch_size)
-            patch_mask = mask[points_mask[0][1]:points_mask[1][1], points_mask[0][0]:points_mask[1][0]]
+            row_start, row_end = points_mask[0][1], points_mask[1][1]
+            col_start, col_end = points_mask[0][0], points_mask[1][0]
+            patch_mask = mask[row_start:row_end, col_start:col_end]
+            
             if keep_patch(patch_mask, tissue_thresh, color_bg):
                 points_level0 = get_three_points(col, row, patch_size_level0)
                 if out_of_bound(slide.dimensions[0], slide.dimensions[1], points_level0[1][0], points_level0[1][1]):
                     continue
                 coord_list.append({'row': row, 'col': col, 'x': points_level0[0][0], 'y': points_level0[0][1]})
+                
+                # RESTORED: Draw rectangle on overview image
+                if thumbnail is not None:
+                    # Calculate overview coordinates
+                    ds_factor = slide.level_downsamples[overview_level if overview_level >= 0 else min(2, slide.level_count - 1)]
+                    points_thumbnail = get_three_points(col, row, patch_size_level0 / ds_factor)
+                    cv2.rectangle(thumbnail, points_thumbnail[0], points_thumbnail[1], color=(0, 0, 255), thickness=3)
+                
+                # RESTORED: Save patch image if requested
+                if patch_dir is not None:
+                    patch_level0 = slide.read_region(location=points_level0[0], level=0,
+                                                    size=(patch_size_level0, patch_size_level0)).convert('RGB')
+                    patch = patch_level0.resize(size=(patch_size, patch_size))
+                    patch.save(str(patch_dir / filename / f'{row}_{col}.png'))
 
     logger.info(f"Finished tiling {filename}. Total patches kept: {len(coord_list)}")
 
@@ -86,6 +117,12 @@ def tiling(slide_filepath, magnification, patch_size, scale_factor=32, tissue_th
     }
     with open(coord_dir / f'{filename}.json', 'w') as f:
         json.dump(coord_dict, f)
+        
+    # RESTORED: Save overview image
+    if thumbnail is not None:
+        overview_path = overview_dir / f'{filename}.png'
+        cv2.imwrite(str(overview_path), thumbnail)
+        logger.info(f"Saved overview image: {overview_path}")
 
 
 def run(args):
