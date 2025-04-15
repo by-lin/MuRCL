@@ -50,6 +50,12 @@ def extract(args, image, encoder, transform=None):
     with torch.no_grad():
         if transform is None:
             to_tensor = torch_trans.ToTensor()
+            # Add normalization with ImageNet mean/std values
+            # normalize = torch_trans.Normalize(
+            #     mean=[0.485, 0.456, 0.406], 
+            #     std=[0.229, 0.224, 0.225]
+            # )
+            # image = to_tensor(image).unsqueeze(dim=0).to(args.device)
             image = to_tensor(image).unsqueeze(dim=0).to(args.device)
         else:
             image = transform(image).unsqueeze(dim=0).to(args.device)

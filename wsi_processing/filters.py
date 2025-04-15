@@ -8,6 +8,8 @@ from skimage import img_as_ubyte
 from skimage.color import rgb2hsv
 from .utils import downsample_image
 
+import logging
+logger = logging.getLogger(__name__)
 
 def otsu(slide, mask_downsample, mask_filepath: str = None):
     img, best_downsampling_level = downsample_image(slide, mask_downsample)
@@ -87,7 +89,7 @@ def filter_green_channel(np_img, green_thresh=200, avoid_overmask=True, overmask
     mask_percentage = mask_percent(gr_ch_mask)
     if (mask_percentage >= overmask_thresh) and (green_thresh < 255) and (avoid_overmask is True):
         new_green_thresh = math.ceil((255 - green_thresh) / 2 + green_thresh)
-        print(
+        logger.info(
             "Mask percentage %3.2f%% >= overmask threshold %3.2f%% for Remove Green Channel green_thresh=%d, so try %d" % (
                 mask_percentage, overmask_thresh, green_thresh, new_green_thresh))
         gr_ch_mask = filter_green_channel(np_img, new_green_thresh, avoid_overmask, overmask_thresh, output_type)
@@ -231,7 +233,7 @@ def filter_remove_small_objects(np_img, min_size=500, avoid_overmask=True, overm
     mask_percentage = mask_percent(rem_sm)
     if (mask_percentage >= overmask_thresh) and (min_size >= 1) and (avoid_overmask is True):
         new_min_size = min_size / 2
-        print("Mask percentage %3.2f%% >= overmask threshold %3.2f%% for Remove Small Objs size %d, so try %d" % (
+        logger.info("Mask percentage %3.2f%% >= overmask threshold %3.2f%% for Remove Small Objs size %d, so try %d" % (
             mask_percentage, overmask_thresh, min_size, new_min_size))
         rem_sm = filter_remove_small_objects(np_img, new_min_size, avoid_overmask, overmask_thresh, output_type)
     np_img = rem_sm
