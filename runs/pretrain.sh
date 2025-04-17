@@ -1,39 +1,56 @@
 #!/bin/sh
 
-echo "pre-training via train_MuRCL.py"
+echo "Stage 1 & 2: Pre-training MuRCL with ABMIL + ResNet features on 4× A100"
+
 for STAGE in 1 2; do
-  python ../train_MuRCL.py \
-    --dataset Camelyon16 \
-    --data_csv path/to/data_csv.csv \
-    --data_split_json path/to/data_split_json.json \
+  python MuRCL/train_MuRCL.py \
+    --dataset CAMELYON16 \
+    --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/murcl-input_10.csv \
+    --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/data_splits.json \
     --feat_size 1024 \
     --preload \
     --train_stage ${STAGE} \
     --T 6 \
-    --scheduler CosineAnnealingLR \
-    --batch_size 128 \
+    --batch_size 512 \
     --epochs 100 \
-    --backbone_lr 0.0001 \
-    --fc_lr 0.00005 \
-    --patience 10 \
-    --arch CLAM_SB \
-    --device 3 \
+    --backbone_lr 1e-4 \
+    --fc_lr 1e-4 \
+    --scheduler CosineAnnealingLR \
+    --wdecay 1e-5 \
+    --alpha 0.9 \
+    --arch ABMIL \
+    --model_dim 512 \
+    --D 128 \
+    --dropout 0.0 \
+    --ppo_lr 1e-5 \
+    --ppo_gamma 0.1 \
+    --K_epochs 3 \
+    --policy_hidden_dim 512 \
+    --action_std 0.5 \
+    --device 0,1,2,3 \
     --exist_ok
 done
-python ../train_MuRCL.py \
-  --dataset Camelyon16 \
-  --data_csv path/to/data_csv.csv \
-  --data_split_json path/to/data_split_json.json \
+
+echo "Stage 3: Fine-tuning MuRCL with ABMIL"
+
+python MuRCL/train_MuRCL.py \
+  --dataset CAMELYON16 \
+  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/murcl-input_10.csv \
+  --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/data_splits.json \
   --feat_size 1024 \
   --preload \
   --train_stage 3 \
   --T 6 \
-  --scheduler CosineAnnealingLR \
-  --batch_size 128 \
+  --batch_size 512 \
   --epochs 100 \
-  --backbone_lr 0.00005 \
-  --fc_lr 0.00001 \
+  --backbone_lr 5e-5 \
+  --fc_lr 1e-5 \
+  --scheduler StepLR \
+  --wdecay 1e-5 \
   --patience 10 \
-  --arch CLAM_SB \
-  --device 3 \
+  --arch ABMIL \
+  --model_dim 512 \
+  --D 128 \
+  --dropout 0.0 \
+  --device 0,1,2,3 \
   --exist_ok
