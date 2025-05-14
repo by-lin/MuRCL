@@ -2,8 +2,8 @@
 
 echo "linear via train_RLMIL.py"
 for STAGE in 1 2; do
-  python ../train_RLMIL.py \
-    --dataset Camelyon16 \
+  python MuRCL/train_RLMIL.py \
+    --dataset CAMELYON16 \
     --data_csv path/to/data_csv.csv \
     --data_split_json path/to/data_split_json.json \
     --train_data train \
@@ -23,8 +23,8 @@ for STAGE in 1 2; do
     --save_model \
     --exist_ok
 done
-python ../train_RLMIL.py \
-  --dataset Camelyon16 \
+python MuRCL/train_RLMIL.py \
+  --dataset CAMELYON16 \
   --data_csv path/to/data_csv.csv \
   --data_split_json path/to/data_split_json.json \
   --train_data train \
