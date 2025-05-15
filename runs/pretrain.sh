@@ -1,56 +1,80 @@
 #!/bin/sh
 
-echo "Stage 1 & 2: Pre-training MuRCL with ABMIL + ResNet features on 4× A100"
-
-for STAGE in 1 2; do
-  python MuRCL/train_MuRCL.py \
-    --dataset CAMELYON16 \
-    --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/murcl-input_10.csv \
-    --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/data_splits.json \
-    --feat_size 1024 \
-    --preload \
-    --train_stage ${STAGE} \
-    --T 6 \
-    --batch_size 512 \
-    --epochs 100 \
-    --backbone_lr 1e-4 \
-    --fc_lr 1e-4 \
-    --scheduler CosineAnnealingLR \
-    --wdecay 1e-5 \
-    --alpha 0.9 \
-    --arch ABMIL \
-    --model_dim 512 \
-    --D 128 \
-    --dropout 0.0 \
-    --ppo_lr 1e-5 \
-    --ppo_gamma 0.1 \
-    --K_epochs 3 \
-    --policy_hidden_dim 512 \
-    --action_std 0.5 \
-    --device 0,1,2,3 \
-    --exist_ok
-done
-
-echo "Stage 3: Fine-tuning MuRCL with ABMIL"
+echo "============================="
+echo "MuRCL Pretraining: Stage 1"
+echo "Training MIL Aggregator M(·) and Projection Head f(·)"
+echo "============================="
 
 python MuRCL/train_MuRCL.py \
   --dataset CAMELYON16 \
-  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/murcl-input_10.csv \
-  --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-baseline/data_splits.json \
+  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input.csv \
+  --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/split.json \
+  --feat_size 1024 \
+  --preload \
+  --train_stage 1 \
+  --T 6 \
+  --scheduler CosineAnnealingLR \
+  --batch_size 128 \
+  --epochs 100 \
+  --backbone_lr 0.0001 \
+  --fc_lr 0.00001 \
+  --wdecay 1e-5 \
+  --patience 10 \
+  --arch ABMIL \
+  --device 0,1,2,3 \
+  --save_model \
+  --exist_ok
+
+echo "============================="
+echo "MuRCL Pretraining: Stage 2"
+echo "Training Reinforcement Learning Agent R"
+echo "============================="
+
+python MuRCL/train_MuRCL.py \
+  --dataset CAMELYON16 \
+  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input.csv \
+  --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/split.json \
+  --feat_size 1024 \
+  --preload \
+  --train_stage 2 \
+  --T 6 \
+  --scheduler CosineAnnealingLR \
+  --batch_size 128 \
+  --epochs 30 \
+  --backbone_lr 0.00001 \
+  --fc_lr 0.00001 \
+  --wdecay 1e-5 \
+  --patience 10 \
+  --arch ABMIL \
+  --device 0,1,2,3 \
+  --save_model \
+  --exist_ok
+
+echo "============================="
+echo "MuRCL Pretraining: Stage 3"
+echo "Joint Fine-Tuning of M(·) and f(·)"
+echo "============================="
+
+python MuRCL/train_MuRCL.py \
+  --dataset CAMELYON16 \
+  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input.csv \
+  --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/split.json \
   --feat_size 1024 \
   --preload \
   --train_stage 3 \
   --T 6 \
-  --batch_size 512 \
+  --scheduler CosineAnnealingLR \
+  --batch_size 128 \
   --epochs 100 \
-  --backbone_lr 5e-5 \
-  --fc_lr 1e-5 \
-  --scheduler StepLR \
+  --backbone_lr 0.00005 \
+  --fc_lr 0.00001 \
   --wdecay 1e-5 \
   --patience 10 \
   --arch ABMIL \
-  --model_dim 512 \
-  --D 128 \
-  --dropout 0.0 \
   --device 0,1,2,3 \
+  --save_model \
   --exist_ok
+
+echo "============================="
+echo "MuRCL Pretraining Completed"
+echo "============================="

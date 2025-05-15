@@ -1064,7 +1064,7 @@ def main():
                         help="dataset name")
     parser.add_argument('--data_csv', type=str, default='',
                         help="the .csv filepath used")
-    parser.add_argument('--data_split_json', type=str, default='/path/to/data_split.json')
+    parser.add_argument('--data_split_json', type=str, help='/path/to/data_split.json')
     parser.add_argument('--train_data', type=str, default='train', choices=['train', 'train_sub_per10'],
                         help="specify how much data used")
     parser.add_argument('--preload', action='store_true', default=False,
