@@ -22,7 +22,6 @@ python MuRCL/train_MuRCL.py \
   --patience 10 \
   --arch ABMIL \
   --device 0,1,2,3 \
-  --save_model \
   --exist_ok
 
 echo "============================="
@@ -47,7 +46,6 @@ python MuRCL/train_MuRCL.py \
   --patience 10 \
   --arch ABMIL \
   --device 0,1,2,3 \
-  --save_model \
   --exist_ok
 
 echo "============================="
