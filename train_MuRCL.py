@@ -390,7 +390,7 @@ def main():
                         help="dataset name")
     parser.add_argument('--data_csv', type=str, default='',
                         help="the .csv filepath used")
-    parser.add_argument('--data_split_json', type=str, default='/path/to/data_split.json')
+    parser.add_argument('--data_split_json', type=str, default='/path/to/data_split_(cluster_size).json')
     parser.add_argument('--preload', action='store_true', default=False,
                         help="preload the patch features, default False")
     parser.add_argument('--data_repeat', type=int, default=10,

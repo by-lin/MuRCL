@@ -7,7 +7,7 @@ echo "============================="
 
 python MuRCL/train_MuRCL.py \
   --dataset CAMELYON16 \
-  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input.csv \
+  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input_10.csv \
   --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/split.json \
   --feat_size 1024 \
   --preload \
@@ -31,7 +31,7 @@ echo "============================="
 
 python MuRCL/train_MuRCL.py \
   --dataset CAMELYON16 \
-  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input.csv \
+  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input_10.csv \
   --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/split.json \
   --feat_size 1024 \
   --preload \
@@ -55,7 +55,7 @@ echo "============================="
 
 python MuRCL/train_MuRCL.py \
   --dataset CAMELYON16 \
-  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input.csv \
+  --data_csv /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/traintest_input_10.csv \
   --data_split_json /projects/0/prjs1477/SG-MuRCL/data/CAMELYON16-MuRCL/split.json \
   --feat_size 1024 \
   --preload \
@@ -70,7 +70,6 @@ python MuRCL/train_MuRCL.py \
   --patience 10 \
   --arch ABMIL \
   --device 0,1,2,3 \
-  --save_model \
   --exist_ok
 
 echo "============================="
